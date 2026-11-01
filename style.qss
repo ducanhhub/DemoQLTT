@@ -124,6 +124,11 @@ QLabel#txtBanGhi {
     font-weight: bold;
     font-size: 14px;
 }
+QLabel#lblMucTieuConLai {
+    color: #38bdf8;
+    font-size: 13px;
+    font-weight: bold;
+}
 
 /* ========================================================================
 INPUT CONTROLS (QLineEdit, QSpinBox, QDoubleSpinBox, QDateEdit, QComboBox)

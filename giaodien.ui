@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tabChienDich">
        <property name="contextMenuPolicy">
@@ -876,13 +876,13 @@
             <string>Vị trí chuyên trách:</string>
            </property>
           </widget>
-          <widget class="QLineEdit" name="txtTrinhDoChuyenMon">
+          <widget class="QLineEdit" name="txtTrinhDo">
            <property name="geometry">
             <rect>
              <x>60</x>
              <y>45</y>
-             <width>211</width>
-             <height>22</height>
+             <width>246</width>
+             <height>36</height>
             </rect>
            </property>
            <property name="placeholderText">
@@ -894,8 +894,8 @@
             <rect>
              <x>375</x>
              <y>45</y>
-             <width>231</width>
-             <height>22</height>
+             <width>266</width>
+             <height>36</height>
             </rect>
            </property>
            <property name="placeholderText">
@@ -1163,11 +1163,6 @@
            <string>Tiền mặt</string>
           </property>
          </item>
-         <item>
-          <property name="text">
-           <string>Hiện vật</string>
-          </property>
-         </item>
         </widget>
         <widget class="QLabel" name="label_18">
          <property name="geometry">
@@ -1193,32 +1188,6 @@
          </property>
          <property name="maximum">
           <double>99999999999999.000000000000000</double>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_19">
-         <property name="geometry">
-          <rect>
-           <x>490</x>
-           <y>105</y>
-           <width>116</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Mô tả hiện vật:</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="txtGhiChuQG">
-         <property name="geometry">
-          <rect>
-           <x>525</x>
-           <y>135</y>
-           <width>331</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="placeholderText">
-          <string>Chỉ áp dụng khi hình thức là hiện vật...</string>
          </property>
         </widget>
         <widget class="QPushButton" name="btnLuuQG">
@@ -1441,11 +1410,6 @@
            <string>Tiền mặt</string>
           </property>
          </item>
-         <item>
-          <property name="text">
-           <string>Hiện vật</string>
-          </property>
-         </item>
         </widget>
         <widget class="QComboBox" name="cboLocTrangThai">
          <property name="geometry">
@@ -1490,6 +1454,32 @@
           <string>Gõ mã QG, tên NHT hoặc tên Chiến dịch, mã GD ...</string>
          </property>
         </widget>
+       </widget>
+       <widget class="QLabel" name="lblMucTieuConLai">
+        <property name="geometry">
+         <rect>
+          <x>425</x>
+          <y>15</y>
+          <width>381</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_30">
+        <property name="geometry">
+         <rect>
+          <x>360</x>
+          <y>15</y>
+          <width>66</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Mục tiêu:</string>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="tabCuuTro">
@@ -1597,7 +1587,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>175</y>
+           <y>140</y>
            <width>71</width>
            <height>16</height>
           </rect>
@@ -1610,7 +1600,7 @@
          <property name="geometry">
           <rect>
            <x>130</x>
-           <y>175</y>
+           <y>140</y>
            <width>216</width>
            <height>31</height>
           </rect>
@@ -1620,7 +1610,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>215</y>
+           <y>180</y>
            <width>66</width>
            <height>16</height>
           </rect>
@@ -1633,7 +1623,7 @@
          <property name="geometry">
           <rect>
            <x>130</x>
-           <y>210</y>
+           <y>175</y>
            <width>131</width>
            <height>31</height>
           </rect>
@@ -1779,29 +1769,6 @@
           <string>Làm mới</string>
          </property>
         </widget>
-        <widget class="QLabel" name="label_51">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>140</y>
-           <width>106</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Hiện vật đề xuất:</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="txtHienVatDeXuat">
-         <property name="geometry">
-          <rect>
-           <x>130</x>
-           <y>136</y>
-           <width>216</width>
-           <height>31</height>
-          </rect>
-         </property>
-        </widget>
        </widget>
        <widget class="QGroupBox" name="grpGiaiNgan">
         <property name="geometry">
@@ -1818,14 +1785,14 @@
         <widget class="QLabel" name="label_27">
          <property name="geometry">
           <rect>
-           <x>30</x>
+           <x>10</x>
            <y>35</y>
-           <width>111</width>
+           <width>126</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
-          <string>Hồ sơ đã duyệt:</string>
+          <string>HS duyệt và chưa GN:</string>
          </property>
         </widget>
         <widget class="QComboBox" name="cboHoSoDaDuyet">
@@ -1885,32 +1852,6 @@
          </property>
          <property name="maximum">
           <double>99999999999999.000000000000000</double>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_30">
-         <property name="geometry">
-          <rect>
-           <x>30</x>
-           <y>225</y>
-           <width>96</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Chi tiết hiện vật:</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="txtHienVatGN">
-         <property name="geometry">
-          <rect>
-           <x>145</x>
-           <y>215</y>
-           <width>271</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="placeholderText">
-          <string>Gói cứu trợ bao gồm: Gạo, mùng mền, thuốc men, ...</string>
          </property>
         </widget>
         <widget class="QPushButton" name="btnXanNhanGiaiNgan">
@@ -2029,9 +1970,9 @@
        <widget class="QFrame" name="frameNganKho">
         <property name="geometry">
          <rect>
-          <x>255</x>
+          <x>415</x>
           <y>40</y>
-          <width>881</width>
+          <width>311</width>
           <height>36</height>
          </rect>
         </property>
@@ -2041,20 +1982,10 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <widget class="QComboBox" name="cboHienVatConLai">
-         <property name="geometry">
-          <rect>
-           <x>490</x>
-           <y>1</y>
-           <width>281</width>
-           <height>31</height>
-          </rect>
-         </property>
-        </widget>
         <widget class="QLabel" name="txtSoTienConLai">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>25</x>
            <y>5</y>
            <width>256</width>
            <height>21</height>
@@ -2068,27 +1999,14 @@
        <widget class="QLabel" name="label_50">
         <property name="geometry">
          <rect>
-          <x>335</x>
-          <y>20</y>
+          <x>425</x>
+          <y>15</y>
           <width>216</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
          <string>Ngân khố đã nhận (còn lại):</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_48">
-        <property name="geometry">
-         <rect>
-          <x>715</x>
-          <y>20</y>
-          <width>181</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Hiện vật Đã nhận(Còn lại)</string>
         </property>
        </widget>
       </widget>
@@ -2557,7 +2475,7 @@
          <property name="geometry">
           <rect>
            <x>15</x>
-           <y>0</y>
+           <y>10</y>
            <width>636</width>
            <height>271</height>
           </rect>

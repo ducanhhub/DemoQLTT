@@ -214,7 +214,7 @@ class DialogBienNhan(QDialog):
     def __init__(self, data, parent=None):
         super().__init__(parent)
         self.setWindowTitle("BIÊN NHẬN ỦNG HỘ TỪ THIỆN")
-        self.setFixedSize(480, 520)
+        self.setFixedSize(480, 500)
         self.setStyleSheet("QDialog { background-color: #0f172a; color: white; font-family: Arial; } QLabel { font-size: 13px; color: #e2e8f0; }")
 
         layout = QVBoxLayout(self)
@@ -241,18 +241,14 @@ class DialogBienNhan(QDialog):
         form.addRow("Mã Số Thuế:", QLabel(str(data.get('MaSoThue') or 'N/A')))
         form.addRow("Chiến Dịch Tiếp Nhận:", QLabel(str(data.get('TenChienDich') or 'N/A')))
         
-        ht_map = {"ChuyenKhoan": "Chuyển khoản Ngân hàng", "TienMat": "Tiền mặt", "HienVat": "Hiện vật"}
+        ht_map = {"ChuyenKhoan": "Chuyển khoản Ngân hàng", "TienMat": "Tiền mặt"}
         form.addRow("Hình Thức Ủng Hộ:", QLabel(ht_map.get(data.get('HinhThuc'), 'N/A')))
         form.addRow("Mã Giao Dịch Ngân Hàng:", QLabel(str(data.get('MaGiaoDichNganHang') or 'N/A')))
         
-        so_tien = data.get('SoTien')
-        hinh_thuc = data.get('HinhThuc')
-        mo_ta_hien_vat = data.get('MoTaHienVat')
-
-        st_val = str(mo_ta_hien_vat) if hinh_thuc == 'HienVat' or (so_tien is not None and float(so_tien) == 0) else f"{float(so_tien):,.0f} đ"
-        lbl_st = QLabel(st_val)
+        so_tien = data.get('SoTien') or 0
+        lbl_st = QLabel(f"{float(so_tien):,.0f} đ")
         lbl_st.setStyleSheet("color: #4ade80; font-size: 15px; font-weight: bold;")
-        form.addRow("Giá Trị / Số Tiền:", lbl_st)
+        form.addRow("Số Tiền Ủng Hộ:", lbl_st)
 
         form.addRow("Ngày Tiếp Nhận:", QLabel(str(data.get('NgayQuyenGop') or 'N/A')))
         form.addRow("Kế Toán Xác Nhận:", QLabel(str(data.get('TenKT') or 'Chờ xác nhận đối soát')))
@@ -278,8 +274,8 @@ class DialogBienNhan(QDialog):
 class DialogBienBanGiaiNgan(QDialog):
     def __init__(self, data, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("BIÊN BẢN BÀN GIAO KINH PHÍ / HÀNG CỨU TRỢ")
-        self.setFixedSize(540, 580)
+        self.setWindowTitle("BIÊN BẢN BÀN GIAO KINH PHÍ CỨU TRỢ")
+        self.setFixedSize(540, 540)
         self.setStyleSheet("QDialog { background-color: #090d16; color: white; font-family: Arial; } QLabel { font-size: 13px; color: #cbd5e1; }")
 
         layout = QVBoxLayout(self)
@@ -288,7 +284,7 @@ class DialogBienBanGiaiNgan(QDialog):
         title_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_header.setStyleSheet("font-size: 11px; font-weight: bold; color: #94a3b8;")
 
-        title = QLabel("BIÊN BẢN BÀN GIAO KINH PHÍ / HÀNG CỨU TRỢ THIỆN NGUYỆN")
+        title = QLabel("BIÊN BẢN BÀN GIAO KINH PHÍ CỨU TRỢ THIỆN NGUYỆN")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setStyleSheet("font-size: 15px; font-weight: bold; color: #f8fafc; margin-top: 5px;")
 
@@ -314,7 +310,7 @@ class DialogBienBanGiaiNgan(QDialog):
         form.addRow("Số CCCD / ĐT:", QLabel(cccd_sdt))
         form.addRow("Địa Chỉ Cứu Trợ:", QLabel(str(data.get('DiaChi_NTH') or 'N/A')))
 
-        loai_hinh_map = {"TienMat": "Tiền mặt cứu trợ trực tiếp", "HienVat": "Hiện vật cứu trợ"}
+        loai_hinh_map = {"TienMat": "Tiền mặt cứu trợ trực tiếp", "ChuyenKhoan": "Chuyển khoản Ngân hàng"}
         form.addRow("Hình Thức Trao Phát:", QLabel(loai_hinh_map.get(data.get('LoaiHinh'), 'N/A')))
 
         st_gn = data.get('SoTienGiaiNgan') or 0
@@ -322,7 +318,6 @@ class DialogBienBanGiaiNgan(QDialog):
         lbl_st.setStyleSheet("color: #4ade80; font-size: 16px; font-weight: bold;")
         form.addRow("Số Tiền Giải Ngân Thực Tế:", lbl_st)
 
-        form.addRow("Hiện Vật Bàn Giao:", QLabel(str(data.get('MoTaHienVatTrao') or 'Không có')))
         form.addRow("Ngày Thực Hiện:", QLabel(str(data.get('NgayThucHien') or 'N/A')))
 
         layout.addLayout(form)
@@ -412,7 +407,11 @@ class MainApp(QMainWindow):
     # SỰ KIỆN CHUYỂN TAB ĐỒNG BỘ DỮ LIỆU
     # =========================================================================
     def on_tab_changed(self, index):
-        if index == 4:  # Tab 5
+        if index == 2:  # Tab 3: Tiếp nhận Quyên góp
+            self.load_cbo_ke_toan_tab3()
+        elif index == 3:  # Tab 4: Hồ sơ & Giải ngân
+            self.load_cbo_ho_so_da_duyet_tab4()
+        elif index == 4:  # Tab 5: Báo cáo
             self.cap_nhat_tab_5()
 
 
@@ -546,6 +545,7 @@ class MainApp(QMainWindow):
         q = "DELETE FROM THAM_GIA WHERE MaCD = %s AND MaTNV = %s" if vaitro == "Tình nguyện viên" else "DELETE FROM GIA_NHAP WHERE MaCD = %s AND MaKT = %s"
         if self.db.execute_query(q, (ma_cd, ma_ns)):
             self.hien_thi_chi_tiet_chien_dich(self.tblChienDich.currentItem())
+            if hasattr(self, 'load_cbo_ke_toan_tab3'): self.load_cbo_ke_toan_tab3()
 
     def thuc_hien_phan_cong(self):
         current_row_cd = self.tblChienDich.currentRow()
@@ -558,6 +558,7 @@ class MainApp(QMainWindow):
         q = "INSERT INTO THAM_GIA (MaBDH, MaCD, MaTNV) VALUES (%s, %s, %s)" if vaitro == "Tình nguyện viên" else "INSERT INTO GIA_NHAP (MaBDH, MaCD, MaKT) VALUES (%s, %s, %s)"
         if self.db.execute_query(q, (ma_bdh, ma_cd, ma_ns)):
             self.hien_thi_chi_tiet_chien_dich(self.tblChienDich.currentItem())
+            if hasattr(self, 'load_cbo_ke_toan_tab3'): self.load_cbo_ke_toan_tab3()
 
     def huy_phan_cong(self):
         row = self.tblPhanCong.currentRow()
@@ -590,7 +591,7 @@ class MainApp(QMainWindow):
         self.load_data_tbl_nhan_su(); self.thay_doi_giao_dien_subtype()
 
     def reset_form_tab2(self):
-        for attr in ['txtCCCD', 'txtHoTen', 'txtSDT', 'txtEmail', 'txtDiaChi', 'txtChucVu', 'txtQuyenHan', 'txtTrinhDo', 'txtViTri', 'txtKVHoatDong']:
+        for attr in ['txtCCCD', 'txtHoTen', 'txtSDT', 'txtEmail', 'txtDiaChi', 'txtChucVu', 'txtQuyenHan', 'txtTrinhDo', 'txtViTriChuyenTrach', 'txtKVHoatDong']:
             if hasattr(self, attr): getattr(self, attr).clear()
         if hasattr(self, 'cboLoaiNhanSu'): self.cboLoaiNhanSu.setCurrentIndex(0)
         if hasattr(self, 'tblNhanSu'): self.tblNhanSu.clearSelection()
@@ -650,7 +651,7 @@ class MainApp(QMainWindow):
             d = self.db.fetch_all("SELECT * FROM KE_TOAN WHERE CCCD = %s", (cccd,))
             if d:
                 if hasattr(self, 'txtTrinhDo'): self.txtTrinhDo.setText(str(d[0].get('TrinhDoChuyenMon') or ''))
-                if hasattr(self, 'txtViTri'): self.txtViTri.setText(str(d[0].get('ViTriChuyenTrach') or ''))
+                if hasattr(self, 'txtViTriChuyenTrach'): self.txtViTriChuyenTrach.setText(str(d[0].get('ViTriChuyenTrach') or ''))
         elif "tình nguyện" in vaitro.lower():
             self.cboLoaiNhanSu.setCurrentIndex(2)
 
@@ -671,21 +672,42 @@ class MainApp(QMainWindow):
                 for p in [s.strip() for s in sdt.split(",") if s.strip()]:
                     self.db.execute_query("INSERT INTO NGUOI_DUNG_SDT (CCCD, SDT) VALUES (%s, %s)", (cccd, p))
 
-            if idx == 0:
+            if idx == 0:  # Người điều hành
                 m = self.tao_ma_dinh_danh_moi('BanDieuHanh')
-                self.db.execute_query("INSERT INTO NGUOI_DIEU_HANH (MaBDH, CCCD, ChucVu, QuyenHanCapDuyet, NamBatDau) VALUES (%s, %s, %s, %s, %s)", (m, cccd, self.txtChucVu.text().strip(), self.txtQuyenHan.text().strip(), self.spnNamBatDau.value()))
-            elif idx == 1:
+                chuc_vu = self.txtChucVu.text().strip() if hasattr(self, 'txtChucVu') else ""
+                
+                quyen_han_widget = getattr(self, 'txtQuyenHanCapDuyet', getattr(self, 'txtQuyenHan', None))
+                quyen_han = quyen_han_widget.text().strip() if quyen_han_widget else ""
+                
+                nam_bd = self.spnNamBatDau.value() if hasattr(self, 'spnNamBatDau') else None
+                nam_kt = self.spnNamKetThuc.value() if hasattr(self, 'spnNamKetThuc') else None
+
+                q_bdh = """
+                    INSERT INTO NGUOI_DIEU_HANH (MaBDH, CCCD, ChucVu, QuyenHanCapDuyet, NamBatDau, NamKetThuc) 
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """
+                self.db.execute_query(q_bdh, (m, cccd, chuc_vu, quyen_han, nam_bd, nam_kt))
+
+            elif idx == 1:  # Kế toán
                 m = self.tao_ma_dinh_danh_moi('KeToan')
-                self.db.execute_query("INSERT INTO KE_TOAN (MaKT, CCCD, TrinhDoChuyenMon, ViTriChuyenTrach) VALUES (%s, %s, %s, %s)", (m, cccd, self.txtTrinhDo.text().strip(), self.txtViTri.text().strip()))
-            elif idx == 2:
+                trinh_do = self.txtTrinhDo.text().strip() if hasattr(self, 'txtTrinhDo') else getattr(self, 'txtTrinhDoChuyenMon', QLineEdit()).text().strip()
+                vi_tri = self.txtViTriChuyenTrach.text().strip() if hasattr(self, 'txtViTriChuyenTrach') else getattr(self, 'txtViTri', QLineEdit()).text().strip()
+                
+                self.db.execute_query("INSERT INTO KE_TOAN (MaKT, CCCD, TrinhDoChuyenMon, ViTriChuyenTrach) VALUES (%s, %s, %s, %s)", (m, cccd, trinh_do, vi_tri))
+
+            elif idx == 2:  # Tình nguyện viên
                 m = self.tao_ma_dinh_danh_moi('TinhNguyenVien')
                 self.db.execute_query("INSERT INTO TINH_NGUYEN_VIEN (MaTNV, CCCD) VALUES (%s, %s)", (m, cccd))
-                for kv in [k.strip() for k in self.txtKVHoatDong.text().split(",") if k.strip()]:
-                    self.db.execute_query("INSERT INTO TINH_NGUYEN_VIEN_KVHDONG (MaTNV, KVHoatDong) VALUES (%s, %s)", (m, kv))
+                if hasattr(self, 'txtKVHoatDong'):
+                    for kv in [k.strip() for k in self.txtKVHoatDong.text().split(",") if k.strip()]:
+                        self.db.execute_query("INSERT INTO TINH_NGUYEN_VIEN_KVHDONG (MaTNV, KVHoatDong) VALUES (%s, %s)", (m, kv))
 
             QMessageBox.information(self, "Thành công", "Đã thêm nhân sự!")
             self.load_data_tbl_nhan_su(); self.load_cbo_bdh(); self.reset_form_tab2()
-            self.load_cbo_bdh_tab4(); self.load_cbo_kt_tab4(); self.load_cbo_tnv_tab4()
+            if hasattr(self, 'load_cbo_ke_toan_tab3'): self.load_cbo_ke_toan_tab3()
+            if hasattr(self, 'load_cbo_bdh_tab4'): self.load_cbo_bdh_tab4()
+            if hasattr(self, 'load_cbo_kt_tab4'): self.load_cbo_kt_tab4()
+            if hasattr(self, 'load_cbo_tnv_tab4'): self.load_cbo_tnv_tab4()
         except Exception as e:
             QMessageBox.critical(self, "Lỗi", str(e))
 
@@ -710,15 +732,49 @@ class MainApp(QMainWindow):
     # =========================================================================
     # TAB 3: TIẾP NHẬN QUYÊN GÓP & ĐỐI SOÁT
     # =========================================================================
+    def cap_nhat_muc_tieu_tab3(self):
+        """Cập nhật label lblMucTieuConLai dạng: Đã quyên góp / Mục tiêu"""
+        if not hasattr(self, 'lblMucTieuConLai'):
+            return
+
+        ma_cd = self.cboChienDich.currentData() if hasattr(self, 'cboChienDich') else None
+        if not ma_cd:
+            self.lblMucTieuConLai.setText("0 / 0 đ")
+            return
+
+        # 1. Truy vấn Mục tiêu tiền từ bảng CHIEN_DICH
+        cd_data = self.db.fetch_all("SELECT MucTieuTien FROM CHIEN_DICH WHERE MaCD = %s", (ma_cd,))
+        muc_tieu = float(cd_data[0]['MucTieuTien']) if cd_data and cd_data[0]['MucTieuTien'] else 0.0
+
+        # 2. Truy vấn Tổng số tiền Đã đối soát từ bảng QUYEN_GOP
+        qg_data = self.db.fetch_all(
+            "SELECT COALESCE(SUM(SoTien), 0) AS TongQG FROM QUYEN_GOP WHERE MaCD = %s AND TrangThaiDoiSoat = 'Đã đối soát'",
+            (ma_cd,)
+        )
+        da_quyen_gop = float(qg_data[0]['TongQG']) if qg_data else 0.0
+
+        # 3. Hiển thị lên Label (Định dạng phân cách hàng nghìn cho dễ nhìn, VD: 1,000 / 50,000,000 đ)
+        self.lblMucTieuConLai.setText(f"{da_quyen_gop:,.0f} / {muc_tieu:,.0f} đ")
+        
+        
     def setup_tab_3_events(self):
-        self.load_cbo_nha_hao_tam(); self.load_cbo_chien_dich_tab3(); self.load_cbo_ke_toan_tab3()
+        self.load_cbo_nha_hao_tam()
+        self.load_cbo_chien_dich_tab3()
+
+        # Bắt sự kiện khi đổi chiến dịch -> Cập nhật Kế toán & Label mục tiêu
+        if hasattr(self, 'cboChienDich'):
+            self.cboChienDich.currentIndexChanged.connect(self.load_cbo_ke_toan_tab3)
+            self.cboChienDich.currentIndexChanged.connect(self.cap_nhat_muc_tieu_tab3)
+
+        self.load_cbo_ke_toan_tab3()
+        self.cap_nhat_muc_tieu_tab3()
 
         if hasattr(self, 'cboHinhThuc'):
-            self.cboHinhThuc.clear(); self.cboHinhThuc.addItems(["Chuyển khoản", "Tiền mặt", "Hiện vật"])
+            self.cboHinhThuc.clear(); self.cboHinhThuc.addItems(["Chuyển khoản", "Tiền mặt"])
             self.cboHinhThuc.currentIndexChanged.connect(self.xuly_thay_doi_hinh_thuc)
 
         if hasattr(self, 'cboLocHinhThuc'):
-            self.cboLocHinhThuc.clear(); self.cboLocHinhThuc.addItems(["Tất cả hình thức", "Chuyển khoản", "Tiền mặt", "Hiện vật"])
+            self.cboLocHinhThuc.clear(); self.cboLocHinhThuc.addItems(["Tất cả hình thức", "Chuyển khoản", "Tiền mặt"])
             self.cboLocHinhThuc.currentIndexChanged.connect(self.loc_quyen_gop)
 
         if hasattr(self, 'cboLocTrangThai'):
@@ -749,9 +805,6 @@ class MainApp(QMainWindow):
         elif ht == "Tiền mặt":
             if hasattr(self, 'txtMaGiaoDich'): self.txtMaGiaoDich.clear(); self.txtMaGiaoDich.setEnabled(False)
             if hasattr(self, 'txtGhiChuQG'): self.txtGhiChuQG.clear(); self.txtGhiChuQG.setEnabled(False)
-        elif ht == "Hiện vật":
-            if hasattr(self, 'txtMaGiaoDich'): self.txtMaGiaoDich.clear(); self.txtMaGiaoDich.setEnabled(False)
-            if hasattr(self, 'txtGhiChuQG'): self.txtGhiChuQG.setEnabled(True)
 
     def reset_form_tab3(self):
         if hasattr(self, 'txtMaGiaoDich'): self.txtMaGiaoDich.clear()
@@ -781,7 +834,24 @@ class MainApp(QMainWindow):
 
     def load_cbo_ke_toan_tab3(self):
         if not hasattr(self, 'cboKeToanDuyet'): return
-        ds = self.db.fetch_all("SELECT kt.MaKT, n.HoTen FROM KE_TOAN kt JOIN NGUOI n ON kt.CCCD = n.CCCD")
+        
+        ma_cd = self.cboChienDich.currentData() if hasattr(self, 'cboChienDich') else None
+        ds = []
+
+        if ma_cd:
+            q = """
+                SELECT DISTINCT kt.MaKT, n.HoTen 
+                FROM KE_TOAN kt 
+                JOIN NGUOI n ON kt.CCCD = n.CCCD
+                JOIN GIA_NHAP gn ON kt.MaKT = gn.MaKT
+                WHERE gn.MaCD = %s
+            """
+            ds = self.db.fetch_all(q, (ma_cd,))
+
+        if not ds:
+            q = "SELECT kt.MaKT, n.HoTen FROM KE_TOAN kt JOIN NGUOI n ON kt.CCCD = n.CCCD"
+            ds = self.db.fetch_all(q)
+
         self.cboKeToanDuyet.clear()
         for d in ds:
             self.cboKeToanDuyet.addItem(f"{d['MaKT']} - {d['HoTen']}", d['MaKT'])
@@ -790,7 +860,7 @@ class MainApp(QMainWindow):
         if not hasattr(self, 'tblQuyenGop'): return
         q = """
             SELECT qg.MaQG, COALESCE(nht.TenNHT, 'Nhà hảo tâm ẩn danh') AS TenNHT, cd.TenChienDich, 
-                   qg.HinhThuc, qg.SoTien, qg.MoTaHienVat, qg.NgayQuyenGop, qg.MaGiaoDichNganHang, qg.TrangThaiDoiSoat
+                   qg.HinhThuc, qg.SoTien, qg.NgayQuyenGop, qg.MaGiaoDichNganHang, qg.TrangThaiDoiSoat
             FROM QUYEN_GOP qg
             JOIN NHA_HAO_TAM nht ON qg.MaNHT = nht.MaNHT
             JOIN CHIEN_DICH cd ON qg.MaCD = cd.MaCD
@@ -799,7 +869,7 @@ class MainApp(QMainWindow):
         params = []
         if ht_filter != "Tất cả hình thức":
             q += " AND qg.HinhThuc = %s"
-            params.append({"Chuyển khoản": "ChuyenKhoan", "Tiền mặt": "TienMat", "Hiện vật": "HienVat"}.get(ht_filter, ht_filter))
+            params.append({"Chuyển khoản": "ChuyenKhoan", "Tiền mặt": "TienMat"}.get(ht_filter, ht_filter))
 
         if tt_filter != "Tất cả trạng thái":
             q += " AND qg.TrangThaiDoiSoat = %s"
@@ -820,7 +890,7 @@ class MainApp(QMainWindow):
             self.tblQuyenGop.setItem(r_idx, 2, QTableWidgetItem(str(r['TenChienDich'])))
             self.tblQuyenGop.setItem(r_idx, 3, QTableWidgetItem(str(r['HinhThuc'])))
             
-            st_str = str(r['MoTaHienVat']) if r['HinhThuc'] == 'HienVat' or (r['SoTien'] is not None and float(r['SoTien']) == 0) else f"{float(r['SoTien']):,.0f} đ"
+            st_str = f"{float(r['SoTien']):,.0f} đ"
             self.tblQuyenGop.setItem(r_idx, 4, QTableWidgetItem(st_str))
             self.tblQuyenGop.setItem(r_idx, 5, QTableWidgetItem(str(r['NgayQuyenGop'])))
             self.tblQuyenGop.setItem(r_idx, 6, QTableWidgetItem(str(r['MaGiaoDichNganHang'] or 'N/A')))
@@ -846,14 +916,12 @@ class MainApp(QMainWindow):
                 idx = self.cboChienDich.findData(d['MaCD'])
                 if idx >= 0: self.cboChienDich.setCurrentIndex(idx)
 
-            ht_map_rev = {"ChuyenKhoan": "Chuyển khoản", "TienMat": "Tiền mặt", "HienVat": "Hiện vật"}
+            ht_map_rev = {"ChuyenKhoan": "Chuyển khoản", "TienMat": "Tiền mặt"}
             self.cboHinhThuc.setCurrentText(ht_map_rev.get(d['HinhThuc'], "Chuyển khoản"))
 
             if hasattr(self, 'spnSoTienQG'): self.spnSoTienQG.setValue(float(d['SoTien']))
             if hasattr(self, 'txtMaGiaoDich'): self.txtMaGiaoDich.setText(str(d.get('MaGiaoDichNganHang') or ''))
-            if hasattr(self, 'txtGhiChuQG'): self.txtGhiChuQG.setText(str(d.get('MoTaHienVat') or ''))
 
-            # Khóa nút bấm khi giao dịch đã ĐỐI SOÁT hoặc TỪ CHỐI
             trang_thai_doi_soat = str(d.get('TrangThaiDoiSoat'))
             if hasattr(self, 'btnLuuQG'): self.btnLuuQG.setEnabled(False)
 
@@ -868,18 +936,17 @@ class MainApp(QMainWindow):
         ma_nht, ma_cd, ht_text = self.cboNhaHaoTam.currentData(), self.cboChienDich.currentData(), self.cboHinhThuc.currentText()
         so_tien = self.spnSoTienQG.value() if hasattr(self, 'spnSoTienQG') else 0
         ma_gd = self.txtMaGiaoDich.text().strip() if hasattr(self, 'txtMaGiaoDich') else None
-        ghi_chu = self.txtGhiChuQG.text().strip() if hasattr(self, 'txtGhiChuQG') else None
 
         if not ma_nht or not ma_cd: return
-        ht_val = {"Chuyển khoản": "ChuyenKhoan", "Tiền mặt": "TienMat", "Hiện vật": "HienVat"}[ht_text]
+        ht_val = {"Chuyển khoản": "ChuyenKhoan", "Tiền mặt": "TienMat"}[ht_text]
 
         try:
             res = self.db.fetch_all("SELECT MaQG FROM QUYEN_GOP ORDER BY MaQG DESC LIMIT 1")
             num = int(res[0]['MaQG'].replace("QG", "")) + 1 if res else 1
             ma_qg = f"QG{num:02d}"
 
-            q = "INSERT INTO QUYEN_GOP (MaQG, MaNHT, MaCD, HinhThuc, SoTien, MoTaHienVat, MaGiaoDichNganHang, TrangThaiDoiSoat) VALUES (%s, %s, %s, %s, %s, %s, %s, 'Chờ đối soát')"
-            self.db.execute_query(q, (ma_qg, ma_nht, ma_cd, ht_val, so_tien, ghi_chu, ma_gd))
+            q = "INSERT INTO QUYEN_GOP (MaQG, MaNHT, MaCD, HinhThuc, SoTien, MaGiaoDichNganHang, TrangThaiDoiSoat) VALUES (%s, %s, %s, %s, %s, %s, 'Chờ đối soát')"
+            self.db.execute_query(q, (ma_qg, ma_nht, ma_cd, ht_val, so_tien, ma_gd))
             QMessageBox.information(self, "Thành công", f"Đã ghi nhận Quyên góp mới! Mã: {ma_qg}")
             self.load_data_tbl_quyen_gop(); self.reset_form_tab3()
         except Exception as e:
@@ -892,7 +959,7 @@ class MainApp(QMainWindow):
         ma_kt = self.cboKeToanDuyet.currentData() if hasattr(self, 'cboKeToanDuyet') else 'KT01'
         if self.db.execute_query("UPDATE QUYEN_GOP SET TrangThaiDoiSoat = 'Đã đối soát', MaKT = %s WHERE MaQG = %s", (ma_kt, ma_qg)):
             QMessageBox.information(self, "Thành công", f"Đã đối soát phiếu {ma_qg}!")
-            self.load_data_tbl_quyen_gop(); self.reset_form_tab3()
+            self.load_data_tbl_quyen_gop(); self.reset_form_tab3(); self.cap_nhat_muc_tieu_tab3()
 
     def tu_choi_giao_dich(self):
         row_idx = self.tblQuyenGop.currentRow()
@@ -916,7 +983,7 @@ class MainApp(QMainWindow):
         ma_qg = self.tblQuyenGop.item(row_idx, 0).text().strip()
         q = """
             SELECT qg.MaQG, nht.TenNHT, nht.MaSoThue, cd.TenChienDich, qg.HinhThuc, qg.SoTien, 
-                   qg.MoTaHienVat, qg.NgayQuyenGop, qg.MaGiaoDichNganHang, qg.TrangThaiDoiSoat, kt_n.HoTen AS TenKT
+                   qg.NgayQuyenGop, qg.MaGiaoDichNganHang, qg.TrangThaiDoiSoat, kt_n.HoTen AS TenKT
             FROM QUYEN_GOP qg
             LEFT JOIN NHA_HAO_TAM nht ON qg.MaNHT = nht.MaNHT
             LEFT JOIN CHIEN_DICH cd ON qg.MaCD = cd.MaCD
@@ -932,8 +999,10 @@ class MainApp(QMainWindow):
     # TAB 4: HỒ SƠ CỨU TRỢ & GIẢI NGÂN
     # =========================================================================
     def setup_tab_4_events(self):
-        if hasattr(self, 'tblHoSo'): self.tblHoSo.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        if hasattr(self, 'tblGiaiNgan'): self.tblGiaiNgan.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        if hasattr(self, 'tblHoSo'): 
+            self.tblHoSo.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        if hasattr(self, 'tblGiaiNgan'): 
+            self.tblGiaiNgan.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         self.load_cbo_nth_tab4()
         self.load_cbo_chien_dich_tab4()
@@ -943,11 +1012,13 @@ class MainApp(QMainWindow):
         self.load_cbo_ho_so_da_duyet_tab4()
 
         if hasattr(self, 'cboLoaiHinh'):
-            self.cboLoaiHinh.clear(); self.cboLoaiHinh.addItems(["Tiền mặt", "Hiện vật"])
+            self.cboLoaiHinh.clear()
+            self.cboLoaiHinh.addItems(["Tiền mặt", "Chuyển khoản"])
             self.cboLoaiHinh.currentIndexChanged.connect(self.xuly_thay_doi_loai_hinh_gn)
 
         if hasattr(self, 'cboLocHS'):
-            self.cboLocHS.clear(); self.cboLocHS.addItems(["Tất cả hồ sơ", "Chờ duyệt", "Đã duyệt", "Từ chối"])
+            self.cboLocHS.clear()
+            self.cboLocHS.addItems(["Tất cả hồ sơ", "Chờ duyệt", "Đã duyệt", "Từ chối"])
             self.cboLocHS.currentIndexChanged.connect(self.loc_ho_so)
 
         if hasattr(self, 'cboChienDichHS'):
@@ -976,31 +1047,65 @@ class MainApp(QMainWindow):
         if not hasattr(self, 'cboNguoiThuHuong'): return
         ds = self.db.fetch_all("SELECT MaNTH, HoTen FROM NGUOI_THU_HUONG ORDER BY MaNTH ASC")
         self.cboNguoiThuHuong.clear()
-        for d in ds: self.cboNguoiThuHuong.addItem(f"{d['MaNTH']} - {d['HoTen']}", d['MaNTH'])
+        for d in ds: 
+            self.cboNguoiThuHuong.addItem(f"{d['MaNTH']} - {d['HoTen']}", d['MaNTH'])
 
     def load_cbo_chien_dich_tab4(self):
         if not hasattr(self, 'cboChienDichHS'): return
         ds = self.db.fetch_all("SELECT MaCD, TenChienDich FROM CHIEN_DICH WHERE TrangThai = 'Đang thực hiện'")
         self.cboChienDichHS.clear()
-        for d in ds: self.cboChienDichHS.addItem(f"{d['MaCD']} - {d['TenChienDich']}", d['MaCD'])
+        for d in ds: 
+            self.cboChienDichHS.addItem(f"{d['MaCD']} - {d['TenChienDich']}", d['MaCD'])
+        self.thay_doi_chien_dich_hs()
 
     def load_cbo_bdh_tab4(self):
         if not hasattr(self, 'cboBDHDuyet'): return
         ds = self.db.fetch_all("SELECT bdh.MaBDH, n.HoTen FROM NGUOI_DIEU_HANH bdh JOIN NGUOI n ON bdh.CCCD = n.CCCD")
         self.cboBDHDuyet.clear()
-        for d in ds: self.cboBDHDuyet.addItem(f"{d['MaBDH']} - {d['HoTen']}", d['MaBDH'])
+        for d in ds: 
+            self.cboBDHDuyet.addItem(f"{d['MaBDH']} - {d['HoTen']}", d['MaBDH'])
 
-    def load_cbo_kt_tab4(self):
+    def load_cbo_kt_tab4(self, ma_cd=None):
         if not hasattr(self, 'cboKTChi'): return
-        ds = self.db.fetch_all("SELECT kt.MaKT, n.HoTen FROM KE_TOAN kt JOIN NGUOI n ON kt.CCCD = n.CCCD")
-        self.cboKTChi.clear()
-        for d in ds: self.cboKTChi.addItem(f"{d['MaKT']} - {d['HoTen']}", d['MaKT'])
+        ds = []
+        if ma_cd:
+            q = """
+                SELECT DISTINCT kt.MaKT, n.HoTen 
+                FROM KE_TOAN kt 
+                JOIN NGUOI n ON kt.CCCD = n.CCCD
+                JOIN GIA_NHAP gn ON kt.MaKT = gn.MaKT
+                WHERE gn.MaCD = %s
+            """
+            ds = self.db.fetch_all(q, (ma_cd,))
 
-    def load_cbo_tnv_tab4(self):
+        if not ds:
+            q = "SELECT kt.MaKT, n.HoTen FROM KE_TOAN kt JOIN NGUOI n ON kt.CCCD = n.CCCD"
+            ds = self.db.fetch_all(q)
+
+        self.cboKTChi.clear()
+        for d in ds: 
+            self.cboKTChi.addItem(f"{d['MaKT']} - {d['HoTen']}", d['MaKT'])
+
+    def load_cbo_tnv_tab4(self, ma_cd=None):
         if not hasattr(self, 'cboTNVPhat'): return
-        ds = self.db.fetch_all("SELECT tnv.MaTNV, n.HoTen FROM TINH_NGUYEN_VIEN tnv JOIN NGUOI n ON tnv.CCCD = n.CCCD")
+        ds = []
+        if ma_cd:
+            q = """
+                SELECT DISTINCT tnv.MaTNV, n.HoTen 
+                FROM TINH_NGUYEN_VIEN tnv 
+                JOIN NGUOI n ON tnv.CCCD = n.CCCD
+                JOIN THAM_GIA tg ON tnv.MaTNV = tg.MaTNV
+                WHERE tg.MaCD = %s
+            """
+            ds = self.db.fetch_all(q, (ma_cd,))
+
+        if not ds:
+            q = "SELECT tnv.MaTNV, n.HoTen FROM TINH_NGUYEN_VIEN tnv JOIN NGUOI n ON tnv.CCCD = n.CCCD"
+            ds = self.db.fetch_all(q)
+
         self.cboTNVPhat.clear()
-        for d in ds: self.cboTNVPhat.addItem(f"{d['MaTNV']} - {d['HoTen']}", d['MaTNV'])
+        for d in ds: 
+            self.cboTNVPhat.addItem(f"{d['MaTNV']} - {d['HoTen']}", d['MaTNV'])
 
     def load_cbo_ho_so_da_duyet_tab4(self):
         if not hasattr(self, 'cboHoSoDaDuyet'): return
@@ -1009,16 +1114,28 @@ class MainApp(QMainWindow):
             FROM HO_SO_CUU_TRO hs
             JOIN NGUOI_THU_HUONG nth ON hs.MaNTH = nth.MaNTH
             WHERE hs.TrangThaiDuyet = 'Đã duyệt'
+              AND hs.MaHS NOT IN (SELECT MaHS FROM GIAI_NGAN_PHAT_HANG)
             ORDER BY hs.MaHS DESC
         """
         ds = self.db.fetch_all(q)
+        
+        self.cboHoSoDaDuyet.blockSignals(True)
         self.cboHoSoDaDuyet.clear()
         for d in ds:
             self.cboHoSoDaDuyet.addItem(f"{d['MaHS']} - {d['TenNTH']} ({float(d['SoTienDeXuat']):,.0f} đ)", d['MaHS'])
+        self.cboHoSoDaDuyet.blockSignals(False)
+
+        if self.cboHoSoDaDuyet.count() > 0:
+            self.thay_doi_ho_so_da_duyet()
+        else:
+            if hasattr(self, 'spnSoTienGN'):
+                self.spnSoTienGN.setValue(0)
+            self.cap_nhat_ngan_kho_ui(None)
+            self.load_cbo_kt_tab4(None)
+            self.load_cbo_tnv_tab4(None)
 
     def reset_form_tab4(self):
         if hasattr(self, 'spnSoTienDeXuat'): self.spnSoTienDeXuat.setValue(0)
-        if hasattr(self, 'txtHienVatDeXuat'): self.txtHienVatDeXuat.clear()
         if hasattr(self, 'cboTrangThaiHS'): self.cboTrangThaiHS.setCurrentText("Chờ duyệt")
 
         if hasattr(self, 'btnTaoHS'): self.btnTaoHS.setEnabled(True)
@@ -1032,7 +1149,7 @@ class MainApp(QMainWindow):
         q_thu_tien = """
             SELECT COALESCE(SUM(SoTien), 0) AS TongThu 
             FROM QUYEN_GOP 
-            WHERE MaCD = %s AND TrangThaiDoiSoat = 'Đã đối soát' AND HinhThuc != 'HienVat'
+            WHERE MaCD = %s AND TrangThaiDoiSoat = 'Đã đối soát'
         """
         res_thu = self.db.fetch_all(q_thu_tien, (ma_cd,))
         tong_thu = float(res_thu[0]['TongThu']) if res_thu else 0.0
@@ -1041,30 +1158,21 @@ class MainApp(QMainWindow):
             SELECT COALESCE(SUM(gn.SoTienGiaiNgan), 0) AS TongChi 
             FROM GIAI_NGAN_PHAT_HANG gn
             JOIN HO_SO_CUU_TRO hs ON gn.MaHS = hs.MaHS
-            WHERE hs.MaCD = %s AND gn.LoaiHinh = 'TienMat'
+            WHERE hs.MaCD = %s
         """
         res_chi = self.db.fetch_all(q_chi_tien, (ma_cd,))
         tong_chi = float(res_chi[0]['TongChi']) if res_chi else 0.0
 
         so_du_tien = tong_thu - tong_chi
 
-        q_hv_nhan = """
-            SELECT MoTaHienVat 
-            FROM QUYEN_GOP 
-            WHERE MaCD = %s AND TrangThaiDoiSoat = 'Đã đối soát' AND HinhThuc = 'HienVat'
-        """
-        res_hv_nhan = self.db.fetch_all(q_hv_nhan, (ma_cd,))
-        hv_nhan_list = [r['MoTaHienVat'] for r in res_hv_nhan if r.get('MoTaHienVat')]
-
-        return tong_thu, tong_chi, so_du_tien, hv_nhan_list
+        return tong_thu, tong_chi, so_du_tien
 
     def cap_nhat_ngan_kho_ui(self, ma_cd):
         if not ma_cd:
             if hasattr(self, 'txtSoTienConLai'): self.txtSoTienConLai.setText("Chưa có")
-            if hasattr(self, 'cboHienVatConLai'): self.cboHienVatConLai.clear()
             return
 
-        tong_thu, tong_chi, so_du_tien, ds_hv = self.tinh_ngan_kho_chien_dich(ma_cd)
+        tong_thu, tong_chi, so_du_tien = self.tinh_ngan_kho_chien_dich(ma_cd)
 
         if hasattr(self, 'txtSoTienConLai'):
             if tong_thu == 0:
@@ -1078,16 +1186,16 @@ class MainApp(QMainWindow):
                 self.txtSoTienConLai.setText(st_str)
                 self.txtSoTienConLai.setStyleSheet(style)
 
-        if hasattr(self, 'cboHienVatConLai'):
-            self.cboHienVatConLai.clear()
-            if ds_hv:
-                for hv_item in ds_hv: self.cboHienVatConLai.addItem(str(hv_item))
-            else:
-                self.cboHienVatConLai.addItem("Không có hiện vật tồn")
-
     def thay_doi_chien_dich_hs(self):
         ma_cd = self.cboChienDichHS.currentData()
         self.cap_nhat_ngan_kho_ui(ma_cd)
+
+        if ma_cd and hasattr(self, 'cboBDHDuyet'):
+            res = self.db.fetch_all("SELECT MaBDH FROM CHIEN_DICH WHERE MaCD = %s", (ma_cd,))
+            if res and res[0].get('MaBDH'):
+                idx = self.cboBDHDuyet.findData(res[0]['MaBDH'])
+                if idx >= 0:
+                    self.cboBDHDuyet.setCurrentIndex(idx)
 
     def hien_thi_chi_tiet_ho_so(self, item):
         ma_hs = self.tblHoSo.item(item.row(), 0).text().strip()
@@ -1104,9 +1212,14 @@ class MainApp(QMainWindow):
 
             if hasattr(self, 'spnSoTienDeXuat'): self.spnSoTienDeXuat.setValue(float(d['SoTienDeXuat']))
 
-            if hasattr(self, 'cboBDHDuyet') and d.get('MaBDH'):
-                idx = self.cboBDHDuyet.findData(d['MaBDH'])
-                if idx >= 0: self.cboBDHDuyet.setCurrentIndex(idx)
+            if hasattr(self, 'cboBDHDuyet'):
+                ma_bdh_target = d.get('MaBDH')
+                if not ma_bdh_target and d.get('MaCD'):
+                    res = self.db.fetch_all("SELECT MaBDH FROM CHIEN_DICH WHERE MaCD = %s", (d['MaCD'],))
+                    if res and res[0].get('MaBDH'): ma_bdh_target = res[0]['MaBDH']
+                if ma_bdh_target:
+                    idx = self.cboBDHDuyet.findData(ma_bdh_target)
+                    if idx >= 0: self.cboBDHDuyet.setCurrentIndex(idx)
 
             if hasattr(self, 'cboTrangThaiHS'): self.cboTrangThaiHS.setCurrentText(str(d['TrangThaiDuyet']))
 
@@ -1121,15 +1234,24 @@ class MainApp(QMainWindow):
         ma_hs = self.cboHoSoDaDuyet.currentData()
         if not ma_hs:
             self.cap_nhat_ngan_kho_ui(None)
+            if hasattr(self, 'spnSoTienGN'): self.spnSoTienGN.setValue(0)
+            self.load_cbo_kt_tab4(None)
+            self.load_cbo_tnv_tab4(None)
             return
-        
+
         q = "SELECT hs.SoTienDeXuat, hs.MaCD FROM HO_SO_CUU_TRO hs WHERE hs.MaHS = %s"
         data = self.db.fetch_all(q, (ma_hs,))
         if data:
             d = data[0]
+            so_tien_de_xuat = float(d['SoTienDeXuat'] or 0)
+            ma_cd = d['MaCD']
+
             if hasattr(self, 'spnSoTienGN'):
-                self.spnSoTienGN.setValue(float(d['SoTienDeXuat']))
-            self.cap_nhat_ngan_kho_ui(d['MaCD'])
+                self.spnSoTienGN.setValue(so_tien_de_xuat)
+
+            self.cap_nhat_ngan_kho_ui(ma_cd)
+            self.load_cbo_kt_tab4(ma_cd)
+            self.load_cbo_tnv_tab4(ma_cd)
 
     def load_data_tbl_ho_so(self, tt_filter="Tất cả hồ sơ"):
         if not hasattr(self, 'tblHoSo'): return
@@ -1188,7 +1310,9 @@ class MainApp(QMainWindow):
 
         if self.db.execute_query("UPDATE HO_SO_CUU_TRO SET TrangThaiDuyet = 'Đã duyệt', MaBDH = %s WHERE MaHS = %s", (ma_bdh, ma_hs)):
             QMessageBox.information(self, "Thành công", f"Đã duyệt hồ sơ {ma_hs}!")
-            self.load_data_tbl_ho_so(); self.load_cbo_ho_so_da_duyet_tab4(); self.reset_form_tab4()
+            self.load_data_tbl_ho_so()
+            self.load_cbo_ho_so_da_duyet_tab4()
+            self.reset_form_tab4()
 
     def tu_choi_ho_so_cuu_tro(self):
         row_idx = self.tblHoSo.currentRow()
@@ -1198,7 +1322,9 @@ class MainApp(QMainWindow):
 
         if self.db.execute_query("UPDATE HO_SO_CUU_TRO SET TrangThaiDuyet = 'Từ chối', MaBDH = %s WHERE MaHS = %s", (ma_bdh, ma_hs)):
             QMessageBox.information(self, "Thành công", f"Đã từ chối hồ sơ {ma_hs}!")
-            self.load_data_tbl_ho_so(); self.load_cbo_ho_so_da_duyet_tab4(); self.reset_form_tab4()
+            self.load_data_tbl_ho_so()
+            self.load_cbo_ho_so_da_duyet_tab4()
+            self.reset_form_tab4()
 
     def huy_ho_so_cuu_tro(self):
         row_idx = self.tblHoSo.currentRow()
@@ -1207,25 +1333,20 @@ class MainApp(QMainWindow):
 
         if QMessageBox.question(self, "Xác nhận xóa", f"Hủy/Xóa hồ sơ {ma_hs}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes:
             if self.db.execute_query("DELETE FROM HO_SO_CUU_TRO WHERE MaHS = %s", (ma_hs,)):
-                self.load_data_tbl_ho_so(); self.load_cbo_ho_so_da_duyet_tab4(); self.reset_form_tab4()
+                self.load_data_tbl_ho_so()
+                self.load_cbo_ho_so_da_duyet_tab4()
+                self.reset_form_tab4()
 
     def xuly_thay_doi_loai_hinh_gn(self):
-        lh = self.cboLoaiHinh.currentText()
-        if lh == "Tiền mặt":
-            if hasattr(self, 'spnSoTienGN'): self.spnSoTienGN.setEnabled(True)
-            if hasattr(self, 'txtHienVatGN'): self.txtHienVatGN.clear(); self.txtHienVatGN.setEnabled(False)
-        else:
-            if hasattr(self, 'spnSoTienGN'): self.spnSoTienGN.setValue(0); self.spnSoTienGN.setEnabled(False)
-            if hasattr(self, 'txtHienVatGN'): self.txtHienVatGN.setEnabled(True)
+        if hasattr(self, 'spnSoTienGN'): self.spnSoTienGN.setEnabled(True)
 
     def xac_nhan_giai_ngan(self):
         ma_hs = self.cboHoSoDaDuyet.currentData()
         lh_text = self.cboLoaiHinh.currentText()
-        lh_val = 'TienMat' if lh_text == 'Tiền mặt' else 'HienVat'
+        lh_val = 'TienMat' if lh_text == 'Tiền mặt' else 'ChuyenKhoan'
         ma_kt = self.cboKTChi.currentData()
         ma_tnv = self.cboTNVPhat.currentData()
-        so_tien = self.spnSoTienGN.value() if lh_val == 'TienMat' else 0
-        hien_vat = self.txtHienVatGN.text().strip() if lh_val == 'HienVat' else None
+        so_tien = self.spnSoTienGN.value() if hasattr(self, 'spnSoTienGN') else 0
 
         if not ma_hs:
             QMessageBox.warning(self, "Cảnh báo", "Vui lòng chọn Hồ sơ đã duyệt để giải ngân!")
@@ -1234,12 +1355,12 @@ class MainApp(QMainWindow):
         data_hs = self.db.fetch_all("SELECT MaCD FROM HO_SO_CUU_TRO WHERE MaHS = %s", (ma_hs,))
         if data_hs:
             ma_cd = data_hs[0]['MaCD']
-            _, _, so_du_tien, _ = self.tinh_ngan_kho_chien_dich(ma_cd)
+            _, _, so_du_tien = self.tinh_ngan_kho_chien_dich(ma_cd)
 
-            if lh_val == 'TienMat' and so_tien > so_du_tien:
+            if so_tien > so_du_tien:
                 QMessageBox.warning(
                     self, "Cảnh báo Ngân khố",
-                    f"Không đủ ngân sách tiền mặt để giải ngân!\n\n"
+                    f"Không đủ ngân sách để giải ngân!\n\n"
                     f"- Số tiền giải ngân đề xuất: {so_tien:,.0f} đ\n"
                     f"- Quỹ tiền còn lại của Chiến dịch: {so_du_tien:,.0f} đ\n\n"
                     f"Vui lòng điều chỉnh lại số tiền hoặc đối soát thêm đợt quyên góp mới!"
@@ -1250,12 +1371,13 @@ class MainApp(QMainWindow):
             res = self.db.fetch_all("SELECT MaGN FROM GIAI_NGAN_PHAT_HANG ORDER BY MaGN DESC LIMIT 1")
             ma_gn = f"GN{int(res[0]['MaGN'].replace('GN', '')) + 1:02d}" if res else "GN01"
 
-            q = "INSERT INTO GIAI_NGAN_PHAT_HANG (MaGN, MaHS, MaKT, MaTNV, LoaiHinh, SoTienGiaiNgan, MoTaHienVatTrao, NgayThucHien) VALUES (%s, %s, %s, %s, %s, %s, %s, CURRENT_DATE())"
-            self.db.execute_query(q, (ma_gn, ma_hs, ma_kt, ma_tnv, lh_val, so_tien, hien_vat))
+            q = "INSERT INTO GIAI_NGAN_PHAT_HANG (MaGN, MaHS, MaKT, MaTNV, LoaiHinh, SoTienGiaiNgan, NgayThucHien) VALUES (%s, %s, %s, %s, %s, %s, CURRENT_DATE())"
+            self.db.execute_query(q, (ma_gn, ma_hs, ma_kt, ma_tnv, lh_val, so_tien))
             
             QMessageBox.information(self, "Thành công", f"Đã giải ngân thành công! Mã phiếu GN: {ma_gn}")
+            
             self.load_data_tbl_giai_ngan()
-            self.thay_doi_ho_so_da_duyet()
+            self.load_cbo_ho_so_da_duyet_tab4()
         except Exception as e:
             QMessageBox.critical(self, "Lỗi CSDL", f"Không thể giải ngân: {e}")
 
@@ -1263,7 +1385,7 @@ class MainApp(QMainWindow):
         if not hasattr(self, 'tblGiaiNgan'): return
         q = """
             SELECT gn.MaGN, gn.MaHS, COALESCE(tnv_n.HoTen, 'N/A') AS TenTNV, 
-                   gn.LoaiHinh, gn.SoTienGiaiNgan, gn.MoTaHienVatTrao, gn.NgayThucHien
+                   gn.LoaiHinh, gn.SoTienGiaiNgan, gn.NgayThucHien
             FROM GIAI_NGAN_PHAT_HANG gn
             LEFT JOIN TINH_NGUYEN_VIEN tnv ON gn.MaTNV = tnv.MaTNV
             LEFT JOIN NGUOI tnv_n ON tnv.CCCD = tnv_n.CCCD
@@ -1278,7 +1400,7 @@ class MainApp(QMainWindow):
             self.tblGiaiNgan.setItem(r_idx, 1, QTableWidgetItem(str(r['MaHS'])))
             self.tblGiaiNgan.setItem(r_idx, 2, QTableWidgetItem(str(r['TenTNV'])))
 
-            st_str = str(r['MoTaHienVatTrao']) if r['LoaiHinh'] == 'HienVat' or (r['SoTienGiaiNgan'] is not None and float(r['SoTienGiaiNgan']) == 0) else f"{float(r['SoTienGiaiNgan']):,.0f} đ"
+            st_str = f"{float(r['SoTienGiaiNgan']):,.0f} đ"
             self.tblGiaiNgan.setItem(r_idx, 3, QTableWidgetItem(st_str))
             self.tblGiaiNgan.setItem(r_idx, 4, QTableWidgetItem(str(r['NgayThucHien'])))
 
@@ -1294,7 +1416,7 @@ class MainApp(QMainWindow):
             SELECT 
                 gn.MaGN, gn.MaHS, cd.TenChienDich, nth.HoTen AS TenNTH, nth.CCCD AS CCCD_NTH,
                 COALESCE(nth_sdt.SDT, 'N/A') AS SDT_NTH, nth.DiaChi AS DiaChi_NTH,
-                gn.LoaiHinh, gn.SoTienGiaiNgan, gn.MoTaHienVatTrao, gn.NgayThucHien,
+                gn.LoaiHinh, gn.SoTienGiaiNgan, gn.NgayThucHien,
                 gn.MaTNV, tnv_n.HoTen AS TenTNV, gn.MaKT, kt_n.HoTen AS TenKT, hs.MaBDH
             FROM GIAI_NGAN_PHAT_HANG gn
             JOIN HO_SO_CUU_TRO hs ON gn.MaHS = hs.MaHS
@@ -1320,7 +1442,7 @@ class MainApp(QMainWindow):
 
 
     # =========================================================================
-    # TAB 5: TRUNG TÂM BÁO CÁO, THỐNG KÊ (NÂNG CẤP TOÀN DIỆN MỚI)
+    # TAB 5: TRUNG TÂM BÁO CÁO, THỐNG KÊ
     # =========================================================================
     def setup_tab_5_events(self):
         if hasattr(self, 'tblBaoCao'):
@@ -1331,7 +1453,6 @@ class MainApp(QMainWindow):
         if hasattr(self, 'dtDenNgay'):
             self.dtDenNgay.setDate(QDate.currentDate())
 
-        # Lắng nghe sự kiện thay đổi lựa chọn chiến dịch
         if hasattr(self, 'cboLocChienDich'):
             self.cboLocChienDich.currentIndexChanged.connect(self.tai_bao_cao_tab5)
 
@@ -1344,7 +1465,6 @@ class MainApp(QMainWindow):
         self.cap_nhat_tab_5()
 
     def load_cbo_filter_tab5(self):
-        """Đổ danh sách chiến dịch vào ComboBox bộ lọc cboLocChienDich ở Tab 5"""
         if not hasattr(self, 'cboLocChienDich'): return
         cbo = getattr(self, 'cboLocChienDich')
         cbo.clear()
@@ -1355,14 +1475,11 @@ class MainApp(QMainWindow):
             cbo.addItem(f"{d['MaCD']} - {d['TenChienDich']}", d['MaCD'])
 
     def cap_nhat_tab_5(self):
-        """Hàm tổng tải dữ liệu tổng quan, tiến độ từng chiến dịch và bảng báo cáo"""
         self.load_card_overview_tab5()
         self.load_tien_do_chien_dich_tab5()
         self.tai_bao_cao_tab5()
 
     def load_card_overview_tab5(self):
-        """1. Cập nhật 4 thẻ thông số tổng quan"""
-        # Quyên góp (Đã đối soát)
         q_qg = "SELECT COALESCE(SUM(SoTien), 0) AS TongTien, COUNT(*) AS SoGD FROM QUYEN_GOP WHERE TrangThaiDoiSoat = 'Đã đối soát'"
         r_qg = self.db.fetch_all(q_qg)
         tong_qg = float(r_qg[0]['TongTien']) if r_qg else 0.0
@@ -1371,7 +1488,6 @@ class MainApp(QMainWindow):
         if hasattr(self, 'lblTongQuyenGop'): self.lblTongQuyenGop.setText(f"{tong_qg:,.0f} đ")
         if hasattr(self, 'lblSubQuyenGop'): self.lblSubQuyenGop.setText(f"{so_gd} giao dịch tiếp nhận")
 
-        # Giải ngân thực tế
         q_gn = "SELECT COALESCE(SUM(SoTienGiaiNgan), 0) AS TongChi, COUNT(*) AS SoDot FROM GIAI_NGAN_PHAT_HANG"
         r_gn = self.db.fetch_all(q_gn)
         tong_gn = float(r_gn[0]['TongChi']) if r_gn else 0.0
@@ -1380,11 +1496,9 @@ class MainApp(QMainWindow):
         if hasattr(self, 'lblTongGiaiNgan'): self.lblTongGiaiNgan.setText(f"{tong_gn:,.0f} đ")
         if hasattr(self, 'lblSub2'): self.lblSub2.setText(f"{so_dot} đợt trao phát")
 
-        # Số dư khả dụng
         so_du = tong_qg - tong_gn
         if hasattr(self, 'lblSoDuKhaDung'): self.lblSoDuKhaDung.setText(f"{so_du:,.0f} đ")
 
-        # Chiến dịch đang hoạt động / Tổng
         q_cd = "SELECT COUNT(*) AS TongCD, SUM(CASE WHEN TrangThai = 'Đang thực hiện' THEN 1 ELSE 0 END) AS DangChay FROM CHIEN_DICH"
         r_cd = self.db.fetch_all(q_cd)
         tong_cd = int(r_cd[0]['TongCD']) if r_cd else 0
@@ -1393,10 +1507,8 @@ class MainApp(QMainWindow):
         if hasattr(self, 'label_58'): self.label_58.setText(f"{dang_chay}/{tong_cd} CD")
 
     def load_tien_do_chien_dich_tab5(self):
-        """2. Code hiển thị danh sách thanh tiến độ tài chính từng chiến dịch vào scrollAreaChienDich"""
         if not hasattr(self, 'layoutListChienDich'): return
         
-        # Xóa các widget cũ
         layout = self.layoutListChienDich.layout()
         if layout is None:
             layout = QVBoxLayout(self.layoutListChienDich)
@@ -1408,11 +1520,9 @@ class MainApp(QMainWindow):
 
         layout.setSpacing(15)
 
-        # Lấy danh sách Chiến dịch
         q_cd = "SELECT MaCD, TenChienDich, MucTieuTien FROM CHIEN_DICH ORDER BY MaCD ASC"
         ds_cd = self.db.fetch_all(q_cd)
 
-        # Thêm Header Tiêu đề & Ghi chú (Mục tiêu, Đã quyên góp, Đã giải ngân)
         header_widget = QWidget()
         header_layout = QHBoxLayout(header_widget)
         header_layout.setContentsMargins(0, 0, 0, 5)
@@ -1433,25 +1543,21 @@ class MainApp(QMainWindow):
             ten_cd = cd['TenChienDich']
             muc_tieu = float(cd['MucTieuTien'] or 0)
 
-            # Tính đã quyên góp
             q_qg = "SELECT COALESCE(SUM(SoTien), 0) AS TongQG FROM QUYEN_GOP WHERE MaCD = %s AND TrangThaiDoiSoat = 'Đã đối soát'"
             r_qg = self.db.fetch_all(q_qg, (ma_cd,))
             da_qg = float(r_qg[0]['TongQG']) if r_qg else 0.0
 
-            # Tính đã giải ngân
             q_gn = "SELECT COALESCE(SUM(gn.SoTienGiaiNgan), 0) AS TongGN FROM GIAI_NGAN_PHAT_HANG gn JOIN HO_SO_CUU_TRO hs ON gn.MaHS = hs.MaHS WHERE hs.MaCD = %s"
             r_gn = self.db.fetch_all(q_gn, (ma_cd,))
             da_gn = float(r_gn[0]['TongGN']) if r_gn else 0.0
 
             pct_dat = (da_qg / muc_tieu * 100) if muc_tieu > 0 else 0
 
-            # Widget Card cho từng CD
             card = QFrame()
             card.setStyleSheet("QFrame { background-color: #1e293b; border-radius: 8px; padding: 8px; } QLabel { color: white; }")
             card_layout = QVBoxLayout(card)
             card_layout.setSpacing(6)
 
-            # Tên chiến dịch + Phần trăm
             top_layout = QHBoxLayout()
             lbl_name = QLabel(f"<b>{ma_cd}</b>: {ten_cd}")
             lbl_name.setStyleSheet("color: #38bdf8; font-size: 13px;")
@@ -1463,11 +1569,8 @@ class MainApp(QMainWindow):
             top_layout.addWidget(lbl_pct)
             card_layout.addLayout(top_layout)
 
-            # Thanh Mục tiêu (Xám/Lam)
             card_layout.addLayout(self.create_progress_row("Mục tiêu:", muc_tieu, muc_tieu, "#475569"))
-            # Thanh Quyên góp (Xanh lá)
             card_layout.addLayout(self.create_progress_row("Quyên góp:", da_qg, muc_tieu, "#10b981"))
-            # Thanh Giải ngân (Xanh dương)
             card_layout.addLayout(self.create_progress_row("Giải ngân:", da_gn, muc_tieu, "#0284c7"))
 
             layout.addWidget(card)
@@ -1475,7 +1578,6 @@ class MainApp(QMainWindow):
         layout.addStretch()
 
     def create_progress_row(self, label_text, val, max_val, color_hex):
-        """Hàm phụ trợ vẽ hàng gồm Nhãn - Thanh ProgressBar - Giá trị tiền"""
         row = QHBoxLayout()
         row.setSpacing(8)
 
@@ -1513,7 +1615,6 @@ class MainApp(QMainWindow):
         return row
 
     def tai_bao_cao_tab5(self):
-        """Tải danh sách quyên góp theo bộ lọc Ngày & Chiến dịch vào tblBaoCao"""
         if not hasattr(self, 'tblBaoCao'): return
 
         cbo_cd = getattr(self, 'cboLocChienDich', None)
@@ -1524,7 +1625,7 @@ class MainApp(QMainWindow):
 
         q = """
             SELECT qg.MaQG, qg.NgayQuyenGop, COALESCE(nht.TenNHT, 'Nhà hảo tâm ẩn danh') AS TenNHT,
-                   cd.TenChienDich, qg.HinhThuc, qg.MaGiaoDichNganHang, qg.SoTien, qg.TrangThaiDoiSoat, qg.MoTaHienVat
+                   cd.TenChienDich, qg.HinhThuc, qg.MaGiaoDichNganHang, qg.SoTien, qg.TrangThaiDoiSoat
             FROM QUYEN_GOP qg
             LEFT JOIN NHA_HAO_TAM nht ON qg.MaNHT = nht.MaNHT
             LEFT JOIN CHIEN_DICH cd ON qg.MaCD = cd.MaCD
@@ -1552,7 +1653,7 @@ class MainApp(QMainWindow):
             self.tblBaoCao.setItem(r_idx, 5, QTableWidgetItem(str(r['MaGiaoDichNganHang'] or 'N/A')))
 
             so_tien = float(r['SoTien'] or 0)
-            st_str = str(r['MoTaHienVat']) if r['HinhThuc'] == 'HienVat' or so_tien == 0 else f"{so_tien:,.0f} đ"
+            st_str = f"{so_tien:,.0f} đ"
             self.tblBaoCao.setItem(r_idx, 6, QTableWidgetItem(st_str))
             self.tblBaoCao.setItem(r_idx, 7, QTableWidgetItem(str(r['TrangThaiDoiSoat'])))
 
@@ -1563,7 +1664,6 @@ class MainApp(QMainWindow):
         if hasattr(self, 'txtTongQuyenGop'): self.txtTongQuyenGop.setText(f"{tong_kinh_phi:,.0f} đ")
 
     def xuat_file_bao_cao_tab5(self):
-        """4. Xuất dữ liệu từ bảng tblBaoCao ra tệp Excel (.xlsx) hoặc CSV (.csv)"""
         if not hasattr(self, 'tblBaoCao') or self.tblBaoCao.rowCount() == 0:
             QMessageBox.warning(self, "Cảnh báo", "Không có dữ liệu trong bảng để xuất file!")
             return
@@ -1575,13 +1675,11 @@ class MainApp(QMainWindow):
         try:
             with open(file_path, mode='w', newline='', encoding='utf-8-sig') as f:
                 writer = csv.writer(f)
-                # Ghi Tiêu đề cột
                 headers = []
                 for col in range(self.tblBaoCao.columnCount()):
                     headers.append(self.tblBaoCao.horizontalHeaderItem(col).text())
                 writer.writerow(headers)
 
-                # Ghi dữ liệu dòng
                 for row in range(self.tblBaoCao.rowCount()):
                     row_data = []
                     for col in range(self.tblBaoCao.columnCount()):
